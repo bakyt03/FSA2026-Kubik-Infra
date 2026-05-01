@@ -9,7 +9,7 @@
 ## Model nasadenia
 
 - Školiteľ pred workshopom pripraví infraštruktúru pre všetkých študentov v zdieľanej subscription.
-- Každý študent dostane `Contributor` prístup iba na svoju `Resource Group` — vlastnú Azure subscription nepotrebuje.
+- Každý študent dostane `Contributor` prístup iba na svoju `Resource Group` — vlastnú Azure subscription nepotrebuje
 
 ```sh
 Subscription (školiteľ)
