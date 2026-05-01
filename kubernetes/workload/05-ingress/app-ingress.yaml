@@ -16,10 +16,10 @@ spec:
   # Toto je potrebne iba pre cert-manager
   tls:
   - hosts:
-      - app.fullstackacademy.sk
+      - app.20.234.120.137.nip.io
     secretName: app-tls-cert
   rules:
-    - host: app.fullstackacademy.sk
+    - host: app.20.234.120.137.nip.io
       http:
         paths:
           - path: /
@@ -29,7 +29,14 @@ spec:
                 name: fsa-fe
                 port:
                   number: 80
-          - path: /discussion-messages
+          - path: /players
+            pathType: Prefix
+            backend:
+              service:
+                name: fsa-be
+                port:
+                  number: 8080
+          - path: /team-suggestions
             pathType: Prefix
             backend:
               service:
