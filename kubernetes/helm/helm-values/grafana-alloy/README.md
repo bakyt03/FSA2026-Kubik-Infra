@@ -14,7 +14,7 @@ helm repo update
 
 helm upgrade --install alloy grafana/alloy \
   -n monitoring \
-  --version 1.7.0 \
+  --version 1.8.0 \
   -f override.yaml
 ```
 

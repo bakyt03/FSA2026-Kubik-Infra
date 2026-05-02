@@ -75,7 +75,7 @@ alloy:
         }
 
         rule {
-          replacement  = "aks-fsa"
+          replacement  = "aks-fsa-kubikl"
           target_label = "cluster"
         }
       }
@@ -120,26 +120,26 @@ alloy:
         }
 
         rule {
-          replacement  = "aks-fsa"
+          replacement  = "aks-fsa-kubikl"
           target_label = "cluster"
         }
       }
 
       prometheus.scrape "app" {
         targets         = discovery.relabel.metrics_app.output
-        forward_to      = [prometheus.remote_write.local.receiver]
+        forward_to      = [prometheus.remote_write.instructor.receiver]
         scrape_interval = "30s"
       }
 
       prometheus.scrape "infra" {
         targets         = discovery.relabel.metrics_infra.output
-        forward_to      = [prometheus.remote_write.local.receiver]
+        forward_to      = [prometheus.remote_write.instructor.receiver]
         scrape_interval = "30s"
       }
 
-      prometheus.remote_write "local" {
+      prometheus.remote_write "instructor" {
         endpoint {
-          url = "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+          url = "https://prometheus.fullstackacademy.sk/api/v1/write"
         }
       }
 
@@ -171,7 +171,7 @@ alloy:
         }
 
         rule {
-          replacement  = "aks-fsa"
+          replacement  = "aks-fsa-kubikl"
           target_label = "cluster"
         }
       }
@@ -200,37 +200,25 @@ alloy:
         }
 
         rule {
-          replacement  = "aks-fsa"
+          replacement  = "aks-fsa-kubikl"
           target_label = "cluster"
         }
       }
 
       loki.source.kubernetes "app" {
         targets    = discovery.relabel.logs_app.output
-        forward_to = [loki.write.local.receiver]
+        forward_to = [loki.write.instructor.receiver]
       }
 
       loki.source.kubernetes "infra" {
         targets    = discovery.relabel.logs_infra.output
-        forward_to = [loki.write.local.receiver]
+        forward_to = [loki.write.instructor.receiver]
       }
 
-      loki.write "local" {
+      loki.write "instructor" {
         endpoint {
-          url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+          url = "https://alloy.fullstackacademy.sk/loki/api/v1/push"
         }
-      }
-
-      // ==========================================================================
-      // GATEWAY — prijíma Loki push zo študentských clustrov
-      // ==========================================================================
-
-      loki.source.api "gateway" {
-        http {
-          listen_address = "0.0.0.0"
-          listen_port    = 3101
-        }
-        forward_to = [loki.write.local.receiver]
       }
 
 # Tieto sekcie sú na TOP LEVELI (nie pod alloy:) — Helm chart ich tu očakáva
@@ -243,21 +231,4 @@ rbac:
 serviceAccount:
   create: true
 
-# Samostatný Service pre Loki push gateway (port 3101)
-# grafana/alloy chart nepodporuje extraPorts — preto cez extraObjects
-extraObjects:
-  - apiVersion: v1
-    kind: Service
-    metadata:
-      name: alloy-loki-gateway
-      namespace: monitoring
-    spec:
-      type: ClusterIP
-      selector:
-        app.kubernetes.io/name: alloy
-        app.kubernetes.io/instance: alloy
-      ports:
-        - name: loki-gateway
-          port: 3101
-          targetPort: 3101
-          protocol: TCP
+
